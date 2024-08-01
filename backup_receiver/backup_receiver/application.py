@@ -31,22 +31,6 @@ def sha256_of_file(file):
 
     return sha256.hexdigest()
 
-@bp.route("/hash_data", methods=["POST"])
-def hash_data():
-    if request.method == 'POST':
-        ph = PasswordHasher()
-
-        data = request.form.get('data')
-
-        # Validate password.
-        if is_password_allowed(data) != True:
-            logging.error("hash_data() validation of data failed")
-            return "error: validation of data failed"
-
-        data_hash = ph.hash(data)
-
-        return data_hash
-
 @bp.route("/receive_backup", methods=["POST"])
 def receive_backup():
         # Check if post data contains file.
