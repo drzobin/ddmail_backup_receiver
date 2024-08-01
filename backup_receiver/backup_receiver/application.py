@@ -13,7 +13,7 @@ from backup_receiver.validators import is_domain_allowed, is_password_allowed, i
 bp = Blueprint("application", __name__, url_prefix="/")
 
 # Configure logging.
-logging.basicConfig(filename="/var/log/backup_receiver.log", format='%(asctime)s: %(levelname)s: %(message)s', level=logging.ERROR)
+logging.basicConfig(filename="/var/log/ddmail_backup_receiver.log", format='%(asctime)s: %(levelname)s: %(message)s', level=logging.ERROR)
 
 # Get sha256 checksum of file.
 def sha256_of_file(file):
