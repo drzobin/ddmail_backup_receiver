@@ -70,6 +70,9 @@ def receive_backup():
         sha256_from_form = sha256_from_form.strip()
 
         # Validate filename.
+        if is_filename_allowed(filename) != True:
+            logging.error("receive_backup() filename validation failed")
+            return "error: filename validation failed"
 
         # Validate sha256 from form.
         if is_sha256_allowed(sha256_from_form) != True:
