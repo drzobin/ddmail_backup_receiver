@@ -13,8 +13,36 @@ def is_sha256_allowed(checksum):
 
     return True
 
+def is_filename_allowed(filename):
+    if len(filename) > 256:
+        return False
+
+    if len(filename) < 3:
+        return False
+
+    if filename.startswith('.') or filename.startswith('-') or filename.startswith('_'):
+        return False
+    if filename.endswith('.') or filename.endswith('-') or filename.endswith('_'):
+        return False
+    if '--' in filename:
+        return False
+    if '..' in filename:
+        return False
+    if '__' in filename:
+        return False
+
+    pattern = re.compile(r"[a-zA-Z0-9\-\_\.]")
+
+    for char in filename:
+        if not re.match(pattern, char):
+            return False
+
+    return True
+
 # Validate password. Passwords will be base64 encoded. Only allow the following chars: A-Z, a-z, 0-9 and +/=
 def is_password_allowed(password):
+    if not len(password) > 16:
+        return False
     pattern = re.compile(r"[a-zA-Z0-9\+\/\=]")
 
     for char in password:
