@@ -1,5 +1,18 @@
 import re
 
+# Valdate sha256 checksum. Only allow the following chars:a-z, A-Z  and 0-9
+def is_sha256_allowed(checksum):
+    if not len(checksum) == 64:
+        return False
+
+    pattern = re.compile(r"[a-zA-Z0-9]")
+
+    for char in checksum:
+        if not re.match(pattern, char):
+            return False
+
+    return True
+
 # Validate password. Passwords will be base64 encoded. Only allow the following chars: A-Z, a-z, 0-9 and +/=
 def is_password_allowed(password):
     pattern = re.compile(r"[a-zA-Z0-9\+\/\=]")
