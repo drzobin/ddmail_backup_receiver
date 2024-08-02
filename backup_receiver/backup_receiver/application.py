@@ -72,6 +72,9 @@ def receive_backup():
         # Validate filename.
 
         # Validate sha256 from form.
+        is_sha256_allowed(sha256_from_form) != True:
+            logging.error("receive_backup() sha256 checksum validation failed")
+            return "error: sha256 checksum validation failed"
 
         # Validate password.
         if is_password_allowed(password) != True:
