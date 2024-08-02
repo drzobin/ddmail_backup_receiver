@@ -8,7 +8,7 @@ import logging
 import hashlib
 import sys
 
-from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed
+from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed, is_sha256_allowed
 
 bp = Blueprint("application", __name__, url_prefix="/")
 
@@ -72,7 +72,7 @@ def receive_backup():
         # Validate filename.
 
         # Validate sha256 from form.
-        is_sha256_allowed(sha256_from_form) != True:
+        if is_sha256_allowed(sha256_from_form) != True:
             logging.error("receive_backup() sha256 checksum validation failed")
             return "error: sha256 checksum validation failed"
 
