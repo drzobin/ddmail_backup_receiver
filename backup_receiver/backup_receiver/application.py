@@ -44,22 +44,22 @@ def receive_backup():
         password = request.form.get('password')
         sha256_from_form = request.form.get('sha256')
 
-        # Check if var is None.
+        # Check if file is None.
         if file == None:
             logging.error("receive_backup() file is None")
             return "error: file is none"
 
-        # Check if var is None.
+        # Check if filename is None.
         if filename == None:
             logging.error("receive_backup() filename is None")
             return "error: filename is none"
 
-        # Check if var is None.
+        # Check if password is None.
         if password == None:
             logging.error("receive_backup() password is None")
             return "error: password is none"
 
-        # Check if var is None.
+        # Check if sha256 checksum is None.
         if sha256_from_form == None:
             logging.error("receive_backup() sha256_from_form is None")
             return "error: sha256_from_form is none"
