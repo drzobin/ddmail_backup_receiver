@@ -3,10 +3,8 @@ from argon2 import PasswordHasher
 from werkzeug.utils import secure_filename
 import os
 import time
-import subprocess
 import logging
 import hashlib
-import sys
 
 from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed, is_sha256_allowed, is_filename_allowed
 
