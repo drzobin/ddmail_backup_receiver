@@ -24,8 +24,6 @@ def test_receive_backup_password_illigal_char(client):
     f = open(test_file_path, "r")
     test_file_data = f.read()
 
-    print("data:"  + str(test_file_data))
-
     response = client.post("/receive_backup", buffered=True, content_type='multipart/form-data', data={"password": "password$", "filename": "test_file.txt", "file": (BytesIO(bytes(test_file_data, 'utf-8')), "test_file.txt"), "sha256": test_file_sha256})
 
     assert response.status_code == 200
