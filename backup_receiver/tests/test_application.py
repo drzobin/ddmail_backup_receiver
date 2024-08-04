@@ -1,6 +1,5 @@
 from backup_receiver.application import sha256_of_file
 from io import BytesIO
-import os
 
 def test_sha256_of_file():
     test_file_path = "backup_receiver/tests/test_file.txt"
