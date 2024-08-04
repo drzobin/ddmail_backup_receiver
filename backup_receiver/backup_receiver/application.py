@@ -8,7 +8,7 @@ import logging
 import hashlib
 import sys
 
-from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed, is_sha256_allowed
+from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed, is_sha256_allowed, is_filename_allowed
 
 bp = Blueprint("application", __name__, url_prefix="/")
 
@@ -86,7 +86,7 @@ def receive_backup():
 
         # Check if password is correct.
         try:
-            if ph.verify(current_app.config["PASSWORD_HASH"], password) != True:
+            if PasswordHasher.verify(current_app.config["PASSWORD_HASH"], password) != True:
                 time.sleep(1)
                 logging.error("receive_backup() wrong password")
                 return "error: wrong password"
