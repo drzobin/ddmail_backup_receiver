@@ -1,4 +1,3 @@
-from flask import current_app
 from backup_receiver.application import sha256_of_file
 from io import BytesIO
 import pytest
