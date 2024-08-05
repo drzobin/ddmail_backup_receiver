@@ -127,3 +127,19 @@ def test_receive_backup_sha256_illigal_char(client):
 
     assert response.status_code == 200
     assert b"error: sha256 checksum validation failed" in response.data
+
+def test_receive_backup_wrong_password(client):
+    response = client.post(
+        "/receive_backup",
+        buffered=True,
+        content_type='multipart/form-data',
+        data={
+            "password": "thisiswrongpassword",
+            "filename": "test_file.txt",
+            "file": (BytesIO(bytes(test_file_data, 'utf-8')), "test_file.txt"),
+            "sha256": sha256
+            }
+        )
+
+    assert response.status_code == 200
+    assert b"error: wrong password" in response.data
