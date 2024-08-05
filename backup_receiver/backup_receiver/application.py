@@ -83,15 +83,16 @@ def receive_backup():
             return "error: password validation failed"
 
         # Check if password is correct.
+        ph = PasswordHasher()
         try:
-            if PasswordHasher.verify(current_app.config["PASSWORD_HASH"], password) != True:
+            if ph.verify(current_app.config["PASSWORD_HASH"], password) != True:
                 time.sleep(1)
                 logging.error("receive_backup() wrong password")
-                return "error: wrong password"
+                return "error: wrong password1"
         except:
             time.sleep(1)
             logging.error("receive_backup() wrong password")
-            return "error: wrong password"
+            return "error: wrong password2"
         time.sleep(1)
 
         # Set folder where uploaded files are stored.
