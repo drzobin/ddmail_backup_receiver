@@ -1,5 +1,7 @@
 from backup_receiver.application import sha256_of_file
 from io import BytesIO
+import os
+import shutil
 
 # Testfile used in many testcases.
 TESTFILE_PATH = "backup_receiver/tests/test_file.txt"
@@ -7,6 +9,11 @@ TESTFILE_NAME = "test_file.txt"
 SHA256 = "7b7632005be0f36c5d1663a6c5ec4d13315589d65e1ef8687fb4b9866f9bc4b0"
 f = open(TESTFILE_PATH, "r")
 TESTFILE_DATA = f.read()
+
+# Application settings used during testing.
+f = open("backup_receiver/tests/PASSWORD", "r")
+PASSWORD = f.read().strip()
+UPLOAD_FOLDER = "backups"
 
 
 def test_sha256_of_file():
@@ -35,7 +42,7 @@ def test_receive_backup_password_illigal_char(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password$",
+            "password": "password$password",
             "filename": TESTFILE_NAME,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": SHA256
@@ -52,7 +59,7 @@ def test_receive_backup_no_filename(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": SHA256
             }
@@ -68,7 +75,7 @@ def test_receive_backup_filename_illigal_char(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "filename": "test_fil--e.txt",
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": SHA256
@@ -85,7 +92,7 @@ def test_receive_backup_no_file(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "filename": TESTFILE_NAME,
             "sha256": SHA256
             }
@@ -101,7 +108,7 @@ def test_receive_backup_no_sha256(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "filename": TESTFILE_NAME,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME)
             }
@@ -119,7 +126,7 @@ def test_receive_backup_sha256_illigal_char(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "filename": TESTFILE_NAME,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": sha256
@@ -148,12 +155,16 @@ def test_receive_backup_wrong_password(client):
 
 
 def test_receive_backup_no_upload_folder(client):
+    # Remove folder to save backups in if it exist.
+    if os.path.exists(UPLOAD_FOLDER):
+        shutil.rmtree(UPLOAD_FOLDER)
+
     response = client.post(
         "/receive_backup",
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "password",
+            "password": PASSWORD,
             "filename": TESTFILE_NAME,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": SHA256
@@ -162,3 +173,47 @@ def test_receive_backup_no_upload_folder(client):
 
     assert response.status_code == 200
     assert b"error: upload folder backups do not exist" in response.data
+
+
+def test_receive_backup_wrong_checksum(client):
+    sha256 = "1b7632005be0f36c5d1663a6c5ec4d13315589d65e1ef8687fb4b9866f9bc4b0"
+
+    # Create folder to save backups in if it do not exist.
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+    response = client.post(
+        "/receive_backup",
+        buffered=True,
+        content_type='multipart/form-data',
+        data={
+            "password": PASSWORD,
+            "filename": TESTFILE_NAME,
+            "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
+            "sha256": sha256
+            }
+        )
+
+    assert response.status_code == 200
+    assert b"error: sha256 checksum do not match" in response.data
+
+
+def test_receive_backup(client):
+    # Create folder to save backups in if it do not exist.
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+    response = client.post(
+        "/receive_backup",
+        buffered=True,
+        content_type='multipart/form-data',
+        data={
+            "password": PASSWORD,
+            "filename": TESTFILE_NAME,
+            "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
+            "sha256": SHA256
+            }
+        )
+
+    assert response.status_code == 200
+    assert b"done" in response.data
