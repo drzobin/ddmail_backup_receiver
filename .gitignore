@@ -1,4 +1,5 @@
 .coverage
+.idea/
 backup_receiver/__pycache__/
 backup_receiver/backup_receiver/__pycache__/
 backup_receiver/tests/__pycache__/
