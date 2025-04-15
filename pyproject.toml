@@ -1,0 +1,50 @@
+[project]
+name = "ddmail_backup_receiver"
+version = "0.0.1"
+authors = [
+  { name="Robin Larsson", email="me@drz.se" },
+]
+description = "Application to handle offsite backups for the ddmail project."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+  "flask",
+  "argon2_cffi",
+  "ddmail-validators",
+  "toml",
+  "gunicorn",
+]
+license = "AGPL-3.0"
+license-files = ["LICEN[CS]E*"]
+
+[project.optional-dependencies]
+dev = [
+  "flask",
+  "argon2_cffi",
+  "ddmail-validators",
+  "toml",
+  "pytest-cov",
+  "flake8",
+  "hatchling",
+  "twine",
+]
+test = [
+  "flask",
+  "argon2_cffi",
+  "ddmail-validators",
+  "toml",
+  "pytest-cov",
+  "flake8",
+]
+
+[project.urls]
+Homepage = "https://github.com/drzobin/ddmail_backup_receiver"
+Issues = "https://github.com/drzobin/ddmail_backup_receiver/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
