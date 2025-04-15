@@ -1,12 +1,12 @@
-class Prod():
+[PRODUCTION]
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
-class Test():
+[TESTING]
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
-class Dev():
+[DEVELOPMENT]
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
