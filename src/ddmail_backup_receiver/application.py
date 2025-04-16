@@ -3,6 +3,7 @@ import time
 import hashlib
 from flask import Blueprint, current_app, request
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from werkzeug.utils import secure_filename
 import ddmail_validators.validators as validators
 
@@ -81,14 +82,11 @@ def receive_backup():
         ph = PasswordHasher()
         try:
             if ph.verify(current_app.config["PASSWORD_HASH"], password) != True:
-                time.sleep(1)
                 current_app.logger.error("wrong password")
                 return "error: wrong password1"
-        except:
-            time.sleep(1)
+        except VerifyMismatchError::
             current_app.logger.error("wrong password")
             return "error: wrong password2"
-        time.sleep(1)
 
         # Set folder where uploaded files are stored.
         upload_folder = current_app.config["UPLOAD_FOLDER"]
