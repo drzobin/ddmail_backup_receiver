@@ -2,11 +2,17 @@
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    LOGFILE = '/var/log/ddmail_backup_receiver'
+    LOG_LEVEL = 'INFO'
 [TESTING]
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    LOGFILE = '/var/log/ddmail_backup_receiver'
+    LOG_LEVEL = 'INFO'
 [DEVELOPMENT]
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    LOGFILE = '/var/log/ddmail_backup_receiver'
+    LOG_LEVEL = 'DEBUG'
