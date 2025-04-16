@@ -27,7 +27,7 @@ def create_app(test_config=None):
         pass
 
     # Apply the blueprints to the app
-    from backup_receiver import application
+    from ddmail_backup_receiver import application
     app.register_blueprint(application.bp)
 
     return app 
