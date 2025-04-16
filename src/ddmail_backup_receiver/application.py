@@ -86,7 +86,7 @@ def receive_backup():
                 return "error: wrong password1"
         except VerifyMismatchError:
             current_app.logger.error("wrong password")
-            return "error: wrong password2"
+            return "error: wrong password"
 
         # Set folder where uploaded files are stored.
         upload_folder = current_app.config["UPLOAD_FOLDER"]
