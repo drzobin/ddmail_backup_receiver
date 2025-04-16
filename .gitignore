@@ -1,5 +1,2 @@
 .coverage
-backup_receiver/__pycache__/
-backup_receiver/backup_receiver/__pycache__/
-backup_receiver/tests/__pycache__/
-backup_receiver/config.py
+__pycache__/
