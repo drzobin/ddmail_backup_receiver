@@ -84,7 +84,7 @@ def receive_backup():
             if ph.verify(current_app.config["PASSWORD_HASH"], password) != True:
                 current_app.logger.error("wrong password")
                 return "error: wrong password1"
-        except VerifyMismatchError::
+        except VerifyMismatchError:
             current_app.logger.error("wrong password")
             return "error: wrong password2"
 
