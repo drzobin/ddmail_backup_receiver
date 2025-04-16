@@ -11,7 +11,7 @@ f = open(TESTFILE_PATH, "r")
 TESTFILE_DATA = f.read()
 
 # Application settings used during testing.
-UPLOAD_FOLDER = "backups"
+UPLOAD_FOLDER = "/opt/ddmail_backup_receiver/backups"
 
 
 def test_sha256_of_file():
@@ -141,7 +141,7 @@ def test_receive_backup_wrong_password(client):
         buffered=True,
         content_type='multipart/form-data',
         data={
-            "password": "thisiswrongpassword",
+            "password": "thisiswrongpassword12345",
             "filename": TESTFILE_NAME,
             "file": (BytesIO(bytes(TESTFILE_DATA, 'utf-8')), TESTFILE_NAME),
             "sha256": SHA256
@@ -170,7 +170,7 @@ def test_receive_backup_no_upload_folder(client,password):
         )
 
     assert response.status_code == 200
-    assert b"error: upload folder backups do not exist" in response.data
+    assert b"error: upload folder /opt/ddmail_backup_receiver/backups do not exist" in response.data
 
 
 def test_receive_backup_wrong_checksum(client,password):
@@ -197,6 +197,8 @@ def test_receive_backup_wrong_checksum(client,password):
 
 
 def test_receive_backup(client,password):
+    print(password)
+
     # Create folder to save backups in if it do not exist.
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
