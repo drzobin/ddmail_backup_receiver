@@ -4,8 +4,7 @@ import hashlib
 from flask import Blueprint, current_app, request
 from argon2 import PasswordHasher
 from werkzeug.utils import secure_filename
-
-from backup_receiver.validators import is_domain_allowed, is_password_allowed, is_email_allowed, is_sha256_allowed, is_filename_allowed
+import ddmail_validators.validators as validators
 
 bp = Blueprint("application", __name__, url_prefix="/")
 
@@ -64,17 +63,17 @@ def receive_backup():
         sha256_from_form = sha256_from_form.strip()
 
         # Validate filename.
-        if is_filename_allowed(filename) != True:
+        if validators.is_filename_allowed(filename) != True:
             current_app.logger.error("filename validation failed")
             return "error: filename validation failed"
 
         # Validate sha256 from form.
-        if is_sha256_allowed(sha256_from_form) != True:
+        if validators.is_sha256_allowed(sha256_from_form) != True:
             current_app.logger.error("sha256 checksum validation failed")
             return "error: sha256 checksum validation failed"
 
         # Validate password.
-        if is_password_allowed(password) != True:
+        if validators.is_password_allowed(password) != True:
             current_app.logger.error("password validation failed")
             return "error: password validation failed"
 
