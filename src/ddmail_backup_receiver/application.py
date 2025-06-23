@@ -9,7 +9,7 @@ import ddmail_validators.validators as validators
 
 bp = Blueprint("application", __name__, url_prefix="/")
 
-def sha256_of_file(file):
+def sha256_of_file(file) -> str:
     """Calculate the SHA256 checksum of a file.
 
     This function reads a file in chunks and calculates its SHA256 hash,
@@ -73,7 +73,7 @@ def receive_backup() -> Response:
     # if request.method != 'POST':
     #    return make_response("Method not allowed", 405)
 
-    
+
     # Check if post data contains file.
     if 'file' not in request.files:
         current_app.logger.error("file is not in request.files")
