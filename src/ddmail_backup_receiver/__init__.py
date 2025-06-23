@@ -2,6 +2,7 @@ import os
 import sys
 from flask import Flask
 import logging
+import logging.handlers
 from logging.config import dictConfig
 from logging import FileHandler
 import toml
@@ -45,71 +46,36 @@ def create_app(config_file=None, test_config=None):
 
     # Set app configurations from toml config file.
     mode = os.environ.get('MODE')
-    print("Running in MODE: " + mode)
+    print("Running in MODE: " + str(mode))
 
     # Apply configuration for the specific MODE.
-    if mode == "PRODUCTION":
-        app.config["SECRET_KEY"] = toml_config["PRODUCTION"]["SECRET_KEY"]
-        app.config["PASSWORD_HASH"] = toml_config["PRODUCTION"]["PASSWORD_HASH"]
-        app.config["UPLOAD_FOLDER"] = toml_config["PRODUCTION"]["UPLOAD_FOLDER"]
+    if mode == "PRODUCTION" or mode == "TESTING" or mode == "DEVELOPMENT":
 
-        # Configure logfile.
-        file_handler = FileHandler(filename=toml_config["PRODUCTION"]["LOGFILE"])
-        file_handler.setFormatter(logging.Formatter(log_format))
-        app.logger.addHandler(file_handler)
+        app.config["SECRET_KEY"] = toml_config[mode]["SECRET_KEY"]
+        app.config["PASSWORD_HASH"] = toml_config[mode]["PASSWORD_HASH"]
+        app.config["UPLOAD_FOLDER"] = toml_config[mode]["UPLOAD_FOLDER"]
 
-        # Configure loglevel.
-        if toml_config["PRODUCTION"]["LOGLEVEL"] == "ERROR":
-            app.logger.setLevel(logging.ERROR)
-        elif toml_config["PRODUCTION"]["LOGLEVEL"] == "WARNING":
-            app.logger.setLevel(logging.WARNING)
-        elif toml_config["PRODUCTION"]["LOGLEVEL"] == "INFO":
-            app.logger.setLevel(logging.INFO)
-        elif toml_config["PRODUCTION"]["LOGLEVEL"] == "DEBUG":
-            app.logger.setLevel(logging.DEBUG)
-        else:
-            print("Error: you need to set LOGLEVEL to ERROR/WARNING/INFO/DEBUG")
-            sys.exit(1)
-    elif mode == "TESTING":
-        app.config["SECRET_KEY"] = toml_config["TESTING"]["SECRET_KEY"]
-        app.config["PASSWORD_HASH"] = toml_config["TESTING"]["PASSWORD_HASH"]
-        app.config["UPLOAD_FOLDER"] = toml_config["TESTING"]["UPLOAD_FOLDER"]
+        # Configure logging to file.
+        if toml_config[mode]["LOGGING"]["LOG_TO_FILE"] is True:
+            file_handler = FileHandler(filename=toml_config[mode]["LOGGING"]["LOGFILE"])
+            file_handler.setFormatter(logging.Formatter(log_format))
+            app.logger.addHandler(file_handler)
 
-        # Configure logfile.
-        file_handler = FileHandler(filename=toml_config["TESTING"]["LOGFILE"])
-        file_handler.setFormatter(logging.Formatter(log_format))
-        app.logger.addHandler(file_handler)
+        # Configure logging to syslog.
+        if toml_config[mode]["LOGGING"]["LOG_TO_SYSLOG"] is True:
+            syslog_handler = logging.handlers.SysLogHandler(address=toml_config[mode]["LOGGING"]["SYSLOG_SERVER"])
+            syslog_handler.setFormatter(logging.Formatter(log_format))
+            app.logger.addHandler(syslog_handler)
+
 
         # Configure loglevel.
-        if toml_config["TESTING"]["LOGLEVEL"] == "ERROR":
+        if toml_config[mode]["LOGGING"]["LOGLEVEL"] == "ERROR":
             app.logger.setLevel(logging.ERROR)
-        elif toml_config["TESTING"]["LOGLEVEL"] == "WARNING":
+        elif toml_config[mode]["LOGGING"]["LOGLEVEL"] == "WARNING":
             app.logger.setLevel(logging.WARNING)
-        elif toml_config["TESTING"]["LOGLEVEL"] == "INFO":
+        elif toml_config[mode]["LOGGING"]["LOGLEVEL"] == "INFO":
             app.logger.setLevel(logging.INFO)
-        elif toml_config["TESTING"]["LOGLEVEL"] == "DEBUG":
-            app.logger.setLevel(logging.DEBUG)
-        else:
-            print("Error: you need to set LOGLEVEL to ERROR/WARNING/INFO/DEBUG")
-            sys.exit(1)
-    elif mode == "DEVELOPMENT":
-        app.config["SECRET_KEY"] = toml_config["DEVELOPMENT"]["SECRET_KEY"]
-        app.config["PASSWORD_HASH"] = toml_config["DEVELOPMENT"]["PASSWORD_HASH"]
-        app.config["UPLOAD_FOLDER"] = toml_config["DEVELOPMENT"]["UPLOAD_FOLDER"]
-
-        # Configure logfile.
-        file_handler = FileHandler(filename=toml_config["DEVELOPMENT"]["LOGFILE"])
-        file_handler.setFormatter(logging.Formatter(log_format))
-        app.logger.addHandler(file_handler)
-
-        # Configure loglevel.
-        if toml_config["DEVELOPMENT"]["LOGLEVEL"] == "ERROR":
-            app.logger.setLevel(logging.ERROR)
-        elif toml_config["DEVELOPMENT"]["LOGLEVEL"] == "WARNING":
-            app.logger.setLevel(logging.WARNING)
-        elif toml_config["DEVELOPMENT"]["LOGLEVEL"] == "INFO":
-            app.logger.setLevel(logging.INFO)
-        elif toml_config["DEVELOPMENT"]["LOGLEVEL"] == "DEBUG":
+        elif toml_config[mode]["LOGGING"]["LOGLEVEL"] == "DEBUG":
             app.logger.setLevel(logging.DEBUG)
         else:
             print("Error: you need to set LOGLEVEL to ERROR/WARNING/INFO/DEBUG")
@@ -118,7 +84,7 @@ def create_app(config_file=None, test_config=None):
         print("Error: you need to set env variabel MODE to PRODUCTION/TESTING/DEVELOPMENT")
         sys.exit(1)
 
-    
+
     app.secret_key = app.config["SECRET_KEY"]
 
     # Ensure the instance folder exists
@@ -131,4 +97,4 @@ def create_app(config_file=None, test_config=None):
     from ddmail_backup_receiver import application
     app.register_blueprint(application.bp)
 
-    return app 
+    return app
