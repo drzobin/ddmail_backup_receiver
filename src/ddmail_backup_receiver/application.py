@@ -68,12 +68,6 @@ def receive_backup() -> Response:
     Success Response:
         "done": Operation completed successfully
     """
-    # We don't need to manually check the method since Flask handles it through the route decorator
-    # This code would only be reached if using POST method based on the route decorator
-    # if request.method != 'POST':
-    #    return make_response("Method not allowed", 405)
-
-
     # Check if post data contains file.
     if 'file' not in request.files:
         current_app.logger.error("file is not in request.files")
