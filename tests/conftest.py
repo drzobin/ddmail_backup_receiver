@@ -5,7 +5,6 @@ from ddmail_backup_receiver import create_app
 
 # Set mode to TESTING so we are sure not to run with production configuration running tests.
 os.environ["MODE"] = "TESTING"
-config_file = None
 
 def pytest_addoption(parser):
     parser.addoption(
