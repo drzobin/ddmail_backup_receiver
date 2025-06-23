@@ -9,7 +9,7 @@ import ddmail_validators.validators as validators
 
 bp = Blueprint("application", __name__, url_prefix="/")
 
-def sha256_of_file(file) -> str:
+def sha256_of_file(file: str) -> str:
     """Calculate the SHA256 checksum of a file.
 
     This function reads a file in chunks and calculates its SHA256 hash,
