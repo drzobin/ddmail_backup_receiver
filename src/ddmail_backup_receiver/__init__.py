@@ -9,7 +9,29 @@ import toml
 
 
 def create_app(config_file=None, test_config=None):
-    """Create and configure an instance of the Flask application backup_receiver"""
+    """Create and configure an instance of the Flask application for backup receiver.
+
+    This function initializes the Flask application with appropriate configuration
+    settings loaded from a TOML file. It sets up logging, loads environment-specific
+    configurations, and registers blueprints.
+
+    Args:
+        config_file (str, optional): Path to the TOML configuration file. Required.
+        test_config (dict, optional): Test configuration to override the loaded config.
+                                      Not currently used but available for testing.
+
+    Returns:
+        Flask: Configured Flask application instance
+
+    Raises:
+        SystemExit: If config_file is not provided, MODE environment variable is invalid,
+                   or if LOGLEVEL is not properly configured.
+
+    Note:
+        The application relies on the MODE environment variable to determine which
+        configuration section to load (PRODUCTION, TESTING, or DEVELOPMENT).
+        Each mode requires specific configuration parameters in the TOML file.
+    """
     # Configure logging.
     log_format = '[%(asctime)s] %(levelname)s in %(module)s %(funcName)s %(lineno)s: %(message)s'
     dictConfig({
