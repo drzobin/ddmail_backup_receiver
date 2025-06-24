@@ -2,6 +2,7 @@
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    BACKUPS_TO_SAVE = 7
     [PRODUCTION.LOGGING]
     LOGLEVEL = 'INFO'
     LOG_TO_FILE = false
@@ -12,6 +13,7 @@
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    BACKUPS_TO_SAVE = 7
     [TESTING.LOGGING]
     LOGLEVEL = 'DEBUG'
     LOG_TO_FILE = true
@@ -22,6 +24,7 @@
     SECRET_KEY = 'change_me'
     PASSWORD_HASH = 'change_me'
     UPLOAD_FOLDER = 'backups'
+    BACKUPS_TO_SAVE = 7
     [DEVELOPMENT.LOGGING]
     LOGLEVEL = 'DEBUG'
     LOG_TO_FILE = true
