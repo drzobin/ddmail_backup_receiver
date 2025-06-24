@@ -76,6 +76,7 @@ def create_app(config_file=None, test_config=None):
         app.config["SECRET_KEY"] = toml_config[mode]["SECRET_KEY"]
         app.config["PASSWORD_HASH"] = toml_config[mode]["PASSWORD_HASH"]
         app.config["UPLOAD_FOLDER"] = toml_config[mode]["UPLOAD_FOLDER"]
+        app.config["BACKUPS_TO_SAVE"] = toml_config[mode]["BACKUPS_TO_SAVE"]
 
         # Configure logging to file.
         if toml_config[mode]["LOGGING"]["LOG_TO_FILE"] is True:
