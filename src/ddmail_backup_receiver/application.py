@@ -1,6 +1,7 @@
 import os
 import time
 import hashlib
+import glob
 from flask import Blueprint, current_app, request, make_response, Response
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -35,6 +36,48 @@ def sha256_of_file(file: str) -> str:
 
     return sha256.hexdigest()
 
+
+def delete_old_backups(backup_folder: str, backups_to_save: int) -> None:
+    """Remove old backups/files that is older then backups_to_save number of files.
+
+    This function will remove old backups/files that is older then backups_to_save number of files.
+    It will also log the number of backups removed and if no backups are removed.
+
+    Args:
+        backup_folder (str): folder where backups is stored that will be removed.
+        backups_to_save (int): number of backups to save.
+
+    Returns:
+        None
+    """
+    # Get list of files in the backup_folder folder.
+    list_of_files = filter(
+            os.path.isfile,
+            glob.glob(backup_folder + '/*')
+            )
+
+    # Sort list of files based on last modification time in ascending order.
+    list_of_files = sorted(list_of_files, key=os.path.getmtime)
+
+    current_app.logger.debug("list_of_files: %s", list_of_files)
+
+    # If we have less or equal of the int backups_to_save backups then exit.
+    if len(list_of_files) <= backups_to_save:
+        current_app.logger.info("too few backups for removing old backups")
+        return
+
+    list_of_files.reverse()
+    count = 0
+
+    # Only save backups_to_save number of backups, remove other.
+    for file in list_of_files:
+        count = count + 1
+        if count <= backups_to_save:
+            continue
+        else:
+            os.remove(file)
+            current_app.logger.info("removing: " + backup_folder + "/" + file)
+
 @bp.route("/receive_backup", methods=["POST"])
 def receive_backup() -> Response:
     """
@@ -42,6 +85,8 @@ def receive_backup() -> Response:
 
     This function handles the receipt of backup files, validates the submission
     parameters, authenticates the request, and stores the file if all validations pass.
+    After successful storage, it manages backup retention by removing older backups
+    based on the configured retention policy.
 
     Returns:
         Response: Flask response with appropriate message and status code
@@ -64,9 +109,16 @@ def receive_backup() -> Response:
         "error: wrong password": If authentication password is incorrect
         "error: upload folder [path] do not exist": If upload directory doesn't exist
         "error: sha256 checksum do not match": If file checksum doesn't match provided value
+        "error: number of backups to save is not set": If BACKUPS_TO_SAVE configuration is missing
+        "error: number of backups to save must be an integer": If BACKUPS_TO_SAVE is not an integer
+        "error: number of backups to save must be a positive integer": If BACKUPS_TO_SAVE is not positive
 
     Success Response:
         "done": Operation completed successfully
+
+    Configuration:
+        BACKUPS_TO_SAVE: Controls how many recent backups to retain. Older backups beyond
+                        this number will be automatically deleted after a successful upload.
     """
     # Check if post data contains file.
     if 'file' not in request.files:
@@ -141,11 +193,31 @@ def receive_backup() -> Response:
     full_path = upload_folder + "/" + secure_filename(filename)
     file.save(full_path)
 
-    # Take sha256 checksum of file and compare with checksum from form.
+    # Take sha256 checksum of file on disc and compare with checksum from form.
     sha256_from_file = sha256_of_file(full_path)
     if sha256_from_form != sha256_from_file:
         current_app.logger.error("sha256 checksum do not match")
         return make_response("error: sha256 checksum do not match", 200)
+
+    # Check if number of backups to save is set.
+    if current_app.config["BACKUPS_TO_SAVE"] is None:
+        current_app.logger.error("number of backups to save is not set")
+        return make_response("error: number of backups to save is not set", 200)
+
+    backups_to_save = current_app.config["BACKUPS_TO_SAVE"]
+
+    # Check if backups_to_save is an integer.
+    if not isinstance(backups_to_save, int):
+        current_app.logger.error("number of backups to save must be an integer")
+        return make_response("error: number of backups to save must be an integer", 200)
+
+    # Check if backups_to_save is a positive integer.
+    if backups_to_save <= 0:
+        current_app.logger.error("number of backups to save must be a positive integer")
+        return make_response("error: number of backups to save must be a positive integer", 200)
+
+    # Delete old backups.
+    delete_old_backups(upload_folder, backups_to_save)
 
     current_app.logger.info("done")
     return make_response("done", 200)
