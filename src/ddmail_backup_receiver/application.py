@@ -1,5 +1,4 @@
 import os
-import time
 import hashlib
 import glob
 from flask import Blueprint, current_app, request, make_response, Response
@@ -132,22 +131,22 @@ def receive_backup() -> Response:
     sha256_from_form = request.form.get('sha256')
 
     # Check if file is None.
-    if file == None:
+    if file is None:
         current_app.logger.error("file is None")
         return make_response("error: file is none", 200)
 
     # Check if filename is None.
-    if filename == None:
+    if filename is None:
         current_app.logger.error("filename is None")
         return make_response("error: filename is none", 200)
 
     # Check if password is None.
-    if password == None:
+    if password is None:
         current_app.logger.error("receive_backup() password is None")
         return make_response("error: password is none", 200)
 
     # Check if sha256 checksum is None.
-    if sha256_from_form == None:
+    if sha256_from_form is None:
         current_app.logger.error("receive_backup() sha256_from_form is None")
         return make_response("error: sha256_from_form is none", 200)
 
@@ -157,24 +156,24 @@ def receive_backup() -> Response:
     sha256_from_form = sha256_from_form.strip()
 
     # Validate filename.
-    if validators.is_filename_allowed(filename) != True:
+    if not validators.is_filename_allowed(filename):
         current_app.logger.error("filename validation failed")
         return make_response("error: filename validation failed", 200)
 
     # Validate sha256 from form.
-    if validators.is_sha256_allowed(sha256_from_form) != True:
+    if not validators.is_sha256_allowed(sha256_from_form):
         current_app.logger.error("sha256 checksum validation failed")
         return make_response("error: sha256 checksum validation failed", 200)
 
     # Validate password.
-    if validators.is_password_allowed(password) != True:
+    if not validators.is_password_allowed(password):
         current_app.logger.error("password validation failed")
         return make_response("error: password validation failed", 200)
 
     # Check if password is correct.
     ph = PasswordHasher()
     try:
-        if ph.verify(current_app.config["PASSWORD_HASH"], password) != True:
+        if not ph.verify(current_app.config["PASSWORD_HASH"], password):
             current_app.logger.error("wrong password")
             return make_response("error: wrong password1", 200)
     except VerifyMismatchError:
@@ -185,7 +184,7 @@ def receive_backup() -> Response:
     upload_folder = current_app.config["UPLOAD_FOLDER"]
 
     # Check if upload folder exist.
-    if os.path.isdir(upload_folder) != True:
+    if not os.path.isdir(upload_folder):
         current_app.logger.error("upload folder " + upload_folder + " do not exist")
         return make_response("error: upload folder " + upload_folder  + " do not exist", 200)
 
