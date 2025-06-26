@@ -1,12 +1,10 @@
 from ddmail_backup_receiver.application import sha256_of_file, delete_old_backups
-from flask import make_response, current_app
 from io import BytesIO
 import os
 import shutil
 import tempfile
 import time
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 # Testfile used in many testcases.
 TESTFILE_PATH = "tests/test_file.txt"
@@ -28,8 +26,7 @@ def create_binary_test_file():
 # Create an empty test file
 def create_empty_test_file():
     empty_file_path = "tests/empty_test_file.txt"
-    with open(empty_file_path, "w") as f:
-        pass
+
     return empty_file_path
 
 # Create a large test file to test chunking behavior
@@ -43,7 +40,7 @@ def create_large_test_file():
 
 def test_sha256_of_file():
     """Test that the sha256_of_file function correctly calculates the SHA256 hash of a test file.
-    
+
     Verifies that the calculated hash matches the expected hash constant.
     """
     assert sha256_of_file(TESTFILE_PATH) == SHA256
@@ -51,7 +48,7 @@ def test_sha256_of_file():
 
 def test_sha256_of_empty_file():
     """Test that the sha256_of_file function correctly handles empty files.
-    
+
     Creates a temporary empty file, calculates its hash, and verifies it matches
     the known SHA256 hash for an empty file. Cleans up the file after testing.
     """
@@ -68,7 +65,7 @@ def test_sha256_of_empty_file():
 
 def test_sha256_of_binary_file():
     """Test that the sha256_of_file function correctly handles binary files.
-    
+
     Creates a temporary binary file, calculates its hash, and verifies it matches
     the expected hash. Cleans up the file after testing.
     """
@@ -86,7 +83,7 @@ def test_sha256_of_binary_file():
 
 def test_sha256_of_large_file():
     """Test that the sha256_of_file function correctly handles large files.
-    
+
     Creates a temporary file larger than the buffer size (65kb), calculates its hash,
     and verifies it matches the expected hash. This tests the chunking behavior of
     the sha256_of_file function. Cleans up the file after testing.
@@ -106,7 +103,7 @@ def test_sha256_of_large_file():
 
 def test_receive_backup_no_password(client):
     """Test that receive_backup correctly handles missing password parameter.
-    
+
     Sends a request to receive_backup without a password parameter and verifies
     that the function returns the expected error message.
     """
@@ -127,7 +124,7 @@ def test_receive_backup_no_password(client):
 
 def test_receive_backup_password_illigal_char(client):
     """Test that receive_backup correctly validates password format.
-    
+
     Sends a request with a password containing illegal characters and verifies
     that the function returns the expected validation error message.
     """
@@ -149,7 +146,7 @@ def test_receive_backup_password_illigal_char(client):
 
 def test_receive_backup_no_filename(client, password):
     """Test that receive_backup correctly handles missing filename parameter.
-    
+
     Sends a request without a filename parameter and verifies that the function
     returns the expected error message.
     """
@@ -170,7 +167,7 @@ def test_receive_backup_no_filename(client, password):
 
 def test_receive_backup_filename_illigal_char(client, password):
     """Test that receive_backup correctly validates filename format.
-    
+
     Sends a request with a filename containing illegal characters and verifies
     that the function returns the expected validation error message.
     """
@@ -192,7 +189,7 @@ def test_receive_backup_filename_illigal_char(client, password):
 
 def test_receive_backup_no_file(client, password):
     """Test that receive_backup correctly handles missing file parameter.
-    
+
     Sends a request without a file parameter and verifies that the function
     returns the expected error message.
     """
@@ -213,7 +210,7 @@ def test_receive_backup_no_file(client, password):
 
 def test_receive_backup_no_sha256(client, password):
     """Test that receive_backup correctly handles missing SHA256 parameter.
-    
+
     Sends a request without a sha256 parameter and verifies that the function
     returns the expected error message.
     """
@@ -234,7 +231,7 @@ def test_receive_backup_no_sha256(client, password):
 
 def test_receive_backup_sha256_illigal_char(client, password):
     """Test that receive_backup correctly validates SHA256 format.
-    
+
     Sends a request with a SHA256 value containing illegal characters and verifies
     that the function returns the expected validation error message.
     """
@@ -258,7 +255,7 @@ def test_receive_backup_sha256_illigal_char(client, password):
 
 def test_receive_backup_wrong_password(client):
     """Test that receive_backup correctly handles incorrect password.
-    
+
     Sends a request with an incorrect password and verifies that the function
     returns the expected authentication error message.
     """
@@ -280,7 +277,7 @@ def test_receive_backup_wrong_password(client):
 
 def test_receive_backup_no_upload_folder(client, password):
     """Test that receive_backup correctly handles missing upload folder.
-    
+
     Removes the upload folder if it exists, then sends a request and verifies that
     the function returns the expected error message about the missing folder.
     """
@@ -306,7 +303,7 @@ def test_receive_backup_no_upload_folder(client, password):
 
 def test_receive_backup_wrong_checksum(client, password):
     """Test that receive_backup correctly validates file checksums.
-    
+
     Sends a request with an incorrect SHA256 checksum and verifies that the function
     calculates the actual checksum and rejects the upload with the expected error message.
     """
@@ -334,17 +331,17 @@ def test_receive_backup_wrong_checksum(client, password):
 
 def test_receive_backup_backups_to_save_none(app, client, password, monkeypatch):
     """Test that receive_backup correctly handles BACKUPS_TO_SAVE set to None.
-    
+
     Configures the app with BACKUPS_TO_SAVE set to None, sends a request, and verifies
     that the function returns the expected error message about the configuration.
     """
     # Create folder to save backups in if it do not exist
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    
+
     # Monkeypatch the BACKUPS_TO_SAVE config to be None
     app.config["BACKUPS_TO_SAVE"] = None
-    
+
     response = client.post(
         "/receive_backup",
         buffered=True,
@@ -363,17 +360,17 @@ def test_receive_backup_backups_to_save_none(app, client, password, monkeypatch)
 
 def test_receive_backup_backups_to_save_non_integer(app, client, password, monkeypatch):
     """Test that receive_backup correctly handles BACKUPS_TO_SAVE set to a non-integer.
-    
+
     Configures the app with BACKUPS_TO_SAVE set to a string value, sends a request,
     and verifies that the function returns the expected type error message.
     """
     # Create folder to save backups in if it do not exist
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    
+
     # Monkeypatch the BACKUPS_TO_SAVE config to be a string (non-integer)
     app.config["BACKUPS_TO_SAVE"] = "7"
-    
+
     response = client.post(
         "/receive_backup",
         buffered=True,
@@ -392,20 +389,20 @@ def test_receive_backup_backups_to_save_non_integer(app, client, password, monke
 
 def test_receive_backup_backups_to_save_non_positive(app, client, password, monkeypatch):
     """Test that receive_backup correctly handles BACKUPS_TO_SAVE set to non-positive values.
-    
+
     Tests two scenarios:
     1. BACKUPS_TO_SAVE set to zero
     2. BACKUPS_TO_SAVE set to a negative number
-    
+
     Verifies that the function returns the expected validation error message in both cases.
     """
     # Create folder to save backups in if it do not exist
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    
+
     # Monkeypatch the BACKUPS_TO_SAVE config to be zero
     app.config["BACKUPS_TO_SAVE"] = 0
-    
+
     response = client.post(
         "/receive_backup",
         buffered=True,
@@ -423,7 +420,7 @@ def test_receive_backup_backups_to_save_non_positive(app, client, password, monk
 
     # Test with negative number
     app.config["BACKUPS_TO_SAVE"] = -5
-    
+
     response = client.post(
         "/receive_backup",
         buffered=True,
@@ -442,7 +439,7 @@ def test_receive_backup_backups_to_save_non_positive(app, client, password, monk
 
 def test_receive_backup(client, password):
     """Test that receive_backup correctly processes a valid backup upload.
-    
+
     Sends a request with all valid parameters and verifies that the function
     successfully processes the upload and returns a success message.
     """
@@ -468,7 +465,7 @@ def test_receive_backup(client, password):
 
 def test_receive_backup_method_not_post(client):
     """Test that receive_backup correctly handles non-POST HTTP methods.
-    
+
     Sends a GET request to the receive_backup endpoint and verifies that the function
     returns a 405 Method Not Allowed response.
     """
@@ -481,7 +478,7 @@ def test_receive_backup_method_not_post(client):
 
 def test_receive_backup_file_none(client, password):
     """Test that receive_backup correctly handles missing file in multipart form.
-    
+
     Sends a request without including a file field in the multipart form data
     and verifies that the function returns the expected error message.
     """
@@ -489,7 +486,7 @@ def test_receive_backup_file_none(client, password):
     # Create folder to save backups in if it do not exist.
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-        
+
     # In Flask's test client, sending a file with value None is detected as
     # 'file is not in request.files', not as 'file is None'.
     # Let's modify our test to match the actual behavior.
@@ -511,7 +508,7 @@ def test_receive_backup_file_none(client, password):
 
 def test_receive_backup_empty_file(client, password):
     """Test that receive_backup correctly handles empty files.
-    
+
     Sends a request with an empty file and empty filename and verifies that
     the function processes this correctly, moving past the 'None' check.
     """
@@ -519,7 +516,7 @@ def test_receive_backup_empty_file(client, password):
     # Create folder to save backups in if it do not exist.
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-        
+
     # Create a test with an empty file object
     response = client.post(
         "/receive_backup",
@@ -540,7 +537,7 @@ def test_receive_backup_empty_file(client, password):
 
 def test_receive_backup_whitespace_trim(client, password):
     """Test that receive_backup correctly trims whitespace from input parameters.
-    
+
     Sends a request with whitespace around the password, filename, and SHA256 values,
     and verifies that the function properly trims the whitespace and processes the upload.
     """
@@ -552,19 +549,19 @@ def test_receive_backup_whitespace_trim(client, password):
     # Create an empty file and get its SHA256
     empty_file_path = create_empty_test_file()
     empty_file_sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    
+
     try:
         # Read the empty file to ensure it's correct
         with open(empty_file_path, 'rb') as f:
             empty_file_data = f.read()
-            
+
         response = client.post(
             "/receive_backup",
             buffered=True,
             content_type='multipart/form-data',
             data={
                 "password": f"  {password}  ",  # Add whitespace around password
-                "filename": f"  empty_file.txt  ",  # Add whitespace around filename
+                "filename": "  empty_file.txt  ",  # Add whitespace around filename
                 "file": (BytesIO(empty_file_data), "empty_file.txt"),  # Empty file
                 "sha256": f"  {empty_file_sha256}  "  # Add whitespace around SHA256
                 }
@@ -581,7 +578,7 @@ def test_receive_backup_whitespace_trim(client, password):
 
 def test_delete_old_backups_empty_folder(app):
     """Test that delete_old_backups correctly handles empty folders.
-    
+
     Creates a temporary empty directory, calls delete_old_backups on it, and verifies
     that the function correctly logs that there are too few backups to remove.
     """
@@ -593,10 +590,10 @@ def test_delete_old_backups_empty_folder(app):
             # Create a test logger
             test_logger = MagicMock()
             app.logger = test_logger
-            
+
             # Call the function with empty directory and backups_to_save=5
             delete_old_backups(temp_dir, 5)
-            
+
             # Verify logger was called with the expected message
             test_logger.info.assert_called_with("too few backups for removing old backups")
     finally:
@@ -606,7 +603,7 @@ def test_delete_old_backups_empty_folder(app):
 
 def test_delete_old_backups_fewer_files(app):
     """Test that delete_old_backups correctly handles having fewer files than the retention limit.
-    
+
     Creates a temporary directory with 3 test files, calls delete_old_backups with
     backups_to_save=5, and verifies that no files are deleted and the function
     correctly logs that there are too few backups to remove.
@@ -621,23 +618,23 @@ def test_delete_old_backups_fewer_files(app):
                 f.write(f"Test content {i}")
             # Sleep briefly to ensure different modification times
             time.sleep(0.1)
-        
+
         # Get initial file list
         initial_files = os.listdir(temp_dir)
         assert len(initial_files) == 3
-        
+
         # Test delete_old_backups with fewer files than backups_to_save
         with app.app_context():
             # Set up logger mock
             test_logger = MagicMock()
             app.logger = test_logger
-            
+
             # Call the function with backups_to_save=5 (more than our 3 files)
             delete_old_backups(temp_dir, 5)
-            
+
             # Verify logger was called with the expected message
             test_logger.info.assert_called_with("too few backups for removing old backups")
-        
+
         # Verify no files were deleted
         remaining_files = os.listdir(temp_dir)
         assert len(remaining_files) == 3
@@ -649,7 +646,7 @@ def test_delete_old_backups_fewer_files(app):
 
 def test_delete_old_backups_more_files(app):
     """Test that delete_old_backups correctly removes older files when there are more than the retention limit.
-    
+
     Creates a temporary directory with 5 test files, calls delete_old_backups with
     backups_to_save=3, and verifies that the 2 oldest files are deleted while
     the 3 newest files remain intact.
@@ -664,28 +661,28 @@ def test_delete_old_backups_more_files(app):
                 f.write(f"Test content {i}")
             # Sleep briefly to ensure different modification times
             time.sleep(0.1)
-        
+
         # Get initial file list and verify creation
         initial_files = os.listdir(temp_dir)
         assert len(initial_files) == 5
-        
+
         # Test delete_old_backups with more files than backups_to_save
         with app.app_context():
             # Set up logger mock
             test_logger = MagicMock()
             app.logger = test_logger
-            
+
             # Call the function with backups_to_save=3 (less than our 5 files)
             delete_old_backups(temp_dir, 3)
-            
+
             # Verify logger was called with removing messages
             # We expect 2 calls to logger.info for removing files
             assert test_logger.info.call_count >= 2
-        
+
         # Verify only 3 files remain (2 should have been deleted)
         remaining_files = os.listdir(temp_dir)
         assert len(remaining_files) == 3
-        
+
         # The newest 3 files should remain (test_file_2, test_file_3, test_file_4)
         expected_remaining = {f"test_file_{i}.txt" for i in range(2, 5)}
         assert set(remaining_files) == expected_remaining
@@ -696,13 +693,13 @@ def test_delete_old_backups_more_files(app):
 
 def test_receive_backup_cleanup(client):
     """Cleanup test to remove the upload folder after tests.
-    
+
     This test ensures the upload folder is removed after all tests are run,
     leaving the environment in a clean state.
     """
     # Cleanup test: remove upload folder after tests
     if os.path.exists(UPLOAD_FOLDER):
         shutil.rmtree(UPLOAD_FOLDER)
-    
+
     # Verify it's gone
     assert not os.path.exists(UPLOAD_FOLDER)
