@@ -1,5 +1,4 @@
 import os
-import tempfile
 import pytest
 from ddmail_backup_receiver import create_app
 
@@ -32,18 +31,11 @@ def password(request):
     return request.config.getoption("--password")
 
 
-@pytest.hookimpl(tryfirst=True)
-def pytest_sessionstart(session):
-    config_file = session.config.getoption("--config")
-    password = session.config.getoption("--password")
-
-
 @pytest.fixture
 def app(config_file):
     """Create and configure a new app instance for each test."""
     app = create_app(config_file = config_file)
     app.config.update({"TESTING": True,})
-
 
     yield app
 
