@@ -1,11 +1,12 @@
-import os
-import sys
-from flask import Flask
 import logging
 import logging.handlers
-from logging.config import dictConfig
+import os
+import sys
 from logging import FileHandler
+from logging.config import dictConfig
+
 import toml
+from flask import Flask
 
 
 def create_app(config_file=None, test_config=None):
@@ -90,6 +91,8 @@ def create_app(config_file=None, test_config=None):
             syslog_handler.setFormatter(logging.Formatter(log_format))
             app.logger.addHandler(syslog_handler)
 
+        # Disable propagation to avoid duplicate log messages using Gunicorn with syslog.
+        app.logger.propagate = (False)
 
         # Configure loglevel.
         if toml_config[mode]["LOGGING"]["LOGLEVEL"] == "ERROR":
