@@ -5,7 +5,7 @@ Application to handle offsite backups for the ddmail project.
 DDMail is a e-mail system/service that prioritizes security. A current production example can be found at www.ddmail.se
 
 ## Operating system
-Developt for and tested on debian 12.
+Developt for and tested on debian 13.
 
 ## Installing using pip
 `pip install ddmail-backup-receiver`
